@@ -1,13 +1,35 @@
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { View, Text, Dimensions, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { Fontisto } from '@expo/vector-icons';
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const API_KEY = "5818433acc888aad8e36a014314b8c8d";
+const icons = {
+  Clouds: "cloudy",
+  Clear: "day-sunny",
+  Atmosphere: "cloudy-gusts",
+  Snow: "snow",
+  Rain: "rains",
+  Drizzle: "rain",
+  Thunderstorm: "lightning",
+};
+
+const weather = {
+  Clouds: "구름낌",
+  Clear: "맑음",
+  Atmosphere: "흐리고 바람",
+  Snow: "눈",
+  Rain: "비",
+  Drizzle: "이슬비",
+  Thunderstorm: "천둥번개",
+};
 
 export default function App() {
   const [city, setCity] = useState("Loading...");
   const [days, setDays] = useState([]);
   const [ok, setOk] = useState(true);
+
   const ask = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -28,9 +50,11 @@ export default function App() {
     console.log(daily);
     setDays(daily);
   };
+
   useEffect(() => {
     ask();
   }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.city}>
@@ -49,10 +73,10 @@ export default function App() {
       :( 
         days.map((day, index) => 
           <View key={index} style={styles.day}>
-            <Text style={styles.day_string}>{day.dt_txt.toString().substring(0,10)}</Text>
+            <Text style={styles.date}>{getDate(day.dt_txt.toString())}</Text>
             <Text style={styles.temp}>{parseFloat(day.main.temp).toFixed(1)}</Text>
-            <Text style={styles.main}>{day.weather[0].main}</Text>
-            <Text style={styles.description}>{day.weather[0].description}</Text>
+            <Fontisto style={{marginTop: -20}} name={icons[day.weather[0].main]} size={68} color="white" />
+            <Text style={styles.main}>{weather[day.weather[0].main]}</Text>
           </View>
         ))
       )}
@@ -61,6 +85,21 @@ export default function App() {
     </View>
   );
 }
+
+const daysOfWeek = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+
+function getDate(input_date) {
+  let resultDate = '';
+  resultDate = input_date.substring(0,10);
+  const date = new Date(resultDate);
+  const month = date.getMonth() + 1; // 월 (0부터 시작하므로 1을 더함)
+  const day = date.getDate(); // 일
+  const dayOfWeek = daysOfWeek[date.getDay()]; // 요일
+
+  resultDate = `${month}월 ${day}일 ${dayOfWeek}`;
+  return resultDate;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,8 +113,11 @@ const styles = StyleSheet.create({
   cityName: {
     fontSize: 58,
     fontWeight: "500",
+    color: "white",
   },
-  weather: {},
+  weather: {
+
+  },
   day: {
     width: SCREEN_WIDTH,
     alignItems: "center",
@@ -83,16 +125,20 @@ const styles = StyleSheet.create({
   temp: {
     marginTop: 50,
     fontWeight: "600",
-    fontSize: 178,
+    fontSize: 120,
+    color: "white",
   },
   main: {
-    marginTop: -30,
-    fontSize: 60,
+    marginTop: -10,
+    fontSize: 50,
+    color: "white",
   },
   description: {
     fontSize: 20,
   },
-  day_string: {
-    fontSize: 50,
+  date: {
+    fontSize: 40,
+    color: "white",
+    alignItems: "center",
   }
 });
